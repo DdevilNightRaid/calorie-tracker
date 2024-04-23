@@ -180,4 +180,10 @@ export const Snacks = [
         image: "/assets/foodDb/snacks/steam-plane-noodles.svg",
         calorieCount: 290,
     },
+    {
+        id: 4,
+        name: "Single Plain Bread ",
+        image: "/assets/foodDb/snacks/plain-bread.svg",
+        calorieCount: 82,
+    },
 ]
