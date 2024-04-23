@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { ClerkProvider } from '@clerk/nextjs'
+import { ColorSchemeScript, MantineProvider } from '@mantine/core';
+
 import "./globals.css";
+import '@mantine/core/styles.css';
+import '@mantine/charts/styles.css';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -17,11 +21,16 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-    <html lang="en">
-      <body className={inter.className}>
-        {children}
-      </body>
-    </html>
+      <html lang="en">
+        <head>
+          <ColorSchemeScript />
+        </head>
+        <body className={inter.className}>
+          <MantineProvider>
+            {children}
+          </MantineProvider>
+        </body>
+      </html>
     </ClerkProvider>
   );
 }

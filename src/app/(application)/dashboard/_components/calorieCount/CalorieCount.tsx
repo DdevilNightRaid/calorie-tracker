@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React, { Dispatch, useEffect, useState } from 'react'
 import {
     Dialog,
     DialogContent,
@@ -30,41 +30,22 @@ import AnimatedButton from '@/components/buttons/AnimatedButton'
 interface CalorieCountProps {
     userId: string;
     formattedDate: string;
+    userTodayConsumptionData: UserConsumptionData | undefined;
+    setAdded: Dispatch<React.SetStateAction<boolean>>
 }
 type addCalorieProps = {
-    mealName: string
-    calorieCount: number
+    mealName: string,
+    calorieCount: number,
 }
-const CalorieCount = ({ userId, formattedDate }: CalorieCountProps) => {
-    const [userTodayConsumptionData, setUserTodayConsumptionData] = useState<UserConsumptionData>(); // Initialize with empty array
+const CalorieCount = ({
+    userId,
+    formattedDate,
+    userTodayConsumptionData,
+    setAdded
+}: CalorieCountProps) => {
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
-    const [added, setAdded] = useState(false);
     const [open, setOpen] = useState(false);
-    useEffect(() => {
-        setIsLoading(true);
-
-        const fetchTodayUserData = async () => {
-            try {
-                const response = await fetch('/api/todayconsumption');
-                const data = await response.json();
-                setUserTodayConsumptionData({
-                    id: data.id,
-                    userId: data.userId,
-                    water: data.water,
-                    consumedcalories: data.consumedcalories,
-                    burnedcalories: data.burnedcalories,
-                    trackedDate: data.todayDate,
-                });
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchTodayUserData();
-    }, [added]);
     const addCalorie = async ({ mealName, calorieCount }: addCalorieProps) => {
         setAdded(true)
         const calorieData = {
@@ -92,8 +73,8 @@ const CalorieCount = ({ userId, formattedDate }: CalorieCountProps) => {
 
     }
     return (
-        <div className='flex flex-col lg:flex-row lg:justify-between items-center gap-14 lg:w-[50rem] border p-4 rounded-lg'>
-            <h2 className='lg:text-3xl font-bold'>Today's Calorie Consumption</h2>
+        <div className='flex flex-row lg:justify-between items-center gap-14 lg:w-[50rem] border p-4 rounded-lg'>
+            <h2 className='text-xs font-medium lg:text-3xl lg:font-bold'>Today's Calorie Consumption</h2>
             <div className='flex items-end'>
                 <div className='flex flex-col items-center gap-4'>
                     <Flame className='h-20 w-20 text-red-500' />

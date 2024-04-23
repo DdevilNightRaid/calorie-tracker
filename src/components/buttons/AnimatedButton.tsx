@@ -1,13 +1,16 @@
 import React from 'react'
 import { motion } from 'framer-motion'
+import { cn } from '@/lib/utils';
 const AnimatedButton = ({
     children,
+    className,
 }: {
-    children: React.ReactNode
+    children: React.ReactNode,
+    className?: string;
 }) => {
     return (
         <motion.button
-            className="px-4 py-2 rounded-md relative radial-gradient"
+            className={cn("px-4 py-2 rounded-md relative radial-gradient", className)}
             initial={{
                 "--x": "100%",
                 scale: 1,

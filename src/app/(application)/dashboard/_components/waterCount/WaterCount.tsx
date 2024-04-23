@@ -6,42 +6,23 @@ import { useUser } from '@clerk/nextjs';
 import { Minus, Plus } from 'lucide-react';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import React, { useEffect, useState } from 'react';
-
+import React, { Dispatch, useEffect, useState } from 'react';
+import { Sparkline } from '@mantine/charts';
 interface WaterCountProps {
     userId: string;
     formattedDate: string;
+    userConsumptionData: UserConsumptionData[];
+    userTodayConsumptionData: UserConsumptionData | undefined;
+    setAdded: Dispatch<React.SetStateAction<boolean>>;
 }
-const WaterCount = ({ userId, formattedDate }: WaterCountProps) => {
-    const [userTodayConsumptionData, setUserTodayConsumptionData] = useState<UserConsumptionData>(); // Initialize with empty array
+const WaterCount = ({
+    userId,
+    formattedDate,
+    userConsumptionData,
+    userTodayConsumptionData,
+    setAdded,
+}: WaterCountProps) => {
     const [error, setError] = useState<string | null>(null);
-    const [isLoading, setIsLoading] = useState(false);
-    const [added, setAdded] = useState(false);
-
-    useEffect(() => {
-        setIsLoading(true);
-
-        const fetchTodayUserData = async () => {
-            try {
-                const response = await fetch('/api/todayconsumption');
-                const data = await response.json();
-                setUserTodayConsumptionData({
-                    id: data.id,
-                    userId: data.userId,
-                    water: data.water,
-                    consumedcalories: data.consumedcalories,
-                    burnedcalories: data.burnedcalories,
-                    trackedDate: data.todayDate,
-                });
-            } catch (err: any) {
-                setError(err.message);
-            } finally {
-                setIsLoading(false);
-            }
-        };
-
-        fetchTodayUserData();
-    }, [added]);
 
     const addWater = async () => {
         setAdded(true)
@@ -87,15 +68,31 @@ const WaterCount = ({ userId, formattedDate }: WaterCountProps) => {
         }
         setAdded(false)
     };
-
+    const waterData: number[] = userConsumptionData.map(item => item.water);
+    if (waterData.length > 0) console.log(waterData)
     return (
-        <div className='flex flex-col lg:flex-row items-center lg:justify-between lg:w-[50rem] gap-14 border p-4 rounded-lg'>
-            <h1 className='lg:text-3xl font-bold'>Your Today's Water Consumption</h1>
-            <div className='flex items-end'>
-
-                <Button 
-                onClick={decreaseWater}
-                className="bg-transparent hover:bg-transparent"
+        <div className='flex flex-row items-center lg:justify-between lg:w-[50rem] gap-14 border p-4 rounded-lg'>
+            <div className='flex flex-col justify-center'>
+                <h1 className='text-xs lg:text-3xl font-medium lg:font-bold'>Your Today's Water Consumption</h1>
+                {
+                    waterData.length > 0 && (
+                        <Sparkline
+                            w={200}
+                            h={60}
+                            data={waterData}
+                            curveType="linear"
+                            color="blue"
+                            fillOpacity={0.3}
+                            strokeWidth={1}
+                            trendColors={{ positive: 'teal.6', negative: 'red.6', neutral: 'gray.5' }}
+                        />
+                    )
+                }
+            </div>
+            <div className='flex items-center lg:items-end'>
+                <Button
+                    onClick={decreaseWater}
+                    className="bg-transparent flex items-center border lg:border-none hover:bg-transparent m-0 p-0 h-0 lg:h-10 lg:px-4 lg:py-2"
                 >
                     <Minus className='h-4 w-4 font-bold text-slate-900' />
                 </Button>
@@ -106,12 +103,14 @@ const WaterCount = ({ userId, formattedDate }: WaterCountProps) => {
                         height={80}
                         width={80}
                     />
-                    <h3 className='font-bold text-4xl'>{userTodayConsumptionData?.water ? userTodayConsumptionData.water : 0}</h3>
+                    <h3 className='font-bold lg:text-4xl'>{userTodayConsumptionData?.water ? userTodayConsumptionData.water : 0}</h3>
                 </div>
                 <button
                     onClick={addWater}
                 >
-                    <AnimatedButton>
+                    <AnimatedButton
+                       className='p-0 lg:px-4 lg:py-2'
+                    >
                         <Plus className='h-4 w-4 font-bold text-slate-900' />
                     </AnimatedButton>
                 </button>

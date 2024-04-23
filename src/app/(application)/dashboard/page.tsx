@@ -10,9 +10,11 @@ const Page = () => {
     const { user } = useUser();
     const [userData, setUserData] = useState<UserData>(); // Initialize with empty object
     const [userConsumptionData, setUserConsumptionData] = useState<UserConsumptionData[]>([]); // Initialize with empty array
+    const [userTodayConsumptionData, setUserTodayConsumptionData] = useState<UserConsumptionData>(); // Initialize with empty array
     const [error, setError] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState(false);
     const [onClient, setOnClient] = useState(false);
+    const [added, setAdded] = useState(false);
 
     useEffect(() => {
         setOnClient(true);
@@ -37,23 +39,45 @@ const Page = () => {
             try {
                 const response = await fetch('/api/consumption');
                 const data = await response.json();
-                setUserConsumptionData([{
-                    id: data.id,
-                    userId: data.userId,
-                    water: data.water,
-                    consumedcalories: data.consumedcalories,
-                    burnedcalories: data.burnedcalories,
-                    trackedDate: data.todayDate,
-                }]);
+                console.log("data: ", data)
+                // setUserConsumptionData([{
+                //     id: data.id,
+                //     userId: data.userId,
+                //     water: data.water,
+                //     consumedcalories: data.consumedcalories,
+                //     burnedcalories: data.burnedcalories,
+                //     trackedDate: data.todayDate,
+                // }]);
+                setUserConsumptionData(data);
             } catch (err: any) {
                 setError(err.message);
             } finally {
                 setIsLoading(false);
             }
         };
+        const fetchTodayUserData = async () => {
+            try {
+                const response = await fetch('/api/todayconsumption');
+                const data = await response.json();
+                setUserTodayConsumptionData({
+                    id: data.id,
+                    userId: data.userId,
+                    water: data.water,
+                    consumedcalories: data.consumedcalories,
+                    burnedcalories: data.burnedcalories,
+                    trackedDate: data.todayDate,
+                });
+            } catch (err: any) {
+                setError(err.message);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        fetchTodayUserData();
         fetchData();
         fetchUserData();
-    }, [onClient]);
+    }, [onClient, added]);
 
     if (!user || !userData) return null;
     if (!onClient) return null;
@@ -67,7 +91,6 @@ const Page = () => {
     const month = String(currentDate.getMonth() + 1).padStart(2, '0'); // Month is zero-based
     const day = String(currentDate.getDate()).padStart(2, '0');
     const formattedDate = `${year}-${month}-${day}`;
-
     return (
         <div className='min-h-screen flex flex-col gap-2 items-center'>
             <nav className='w-full p-2 border-b mb-7 flex items-center justify-between'>
@@ -77,8 +100,19 @@ const Page = () => {
                     <UserButton />
                 </div>
             </nav>
-            <WaterCount userId={user.id} formattedDate={formattedDate} />
-            <CalorieCount userId={user.id} formattedDate={formattedDate} />
+            <WaterCount
+                userId={user.id}
+                formattedDate={formattedDate}
+                userTodayConsumptionData={userTodayConsumptionData}
+                setAdded={setAdded}
+                userConsumptionData={userConsumptionData}
+                />
+            <CalorieCount
+                userId={user.id}
+                formattedDate={formattedDate}
+                userTodayConsumptionData={userTodayConsumptionData}
+                setAdded={setAdded}
+            />
         </div>
     );
 };
