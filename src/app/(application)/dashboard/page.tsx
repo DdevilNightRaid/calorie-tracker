@@ -106,7 +106,7 @@ const Page = () => {
                 userTodayConsumptionData={userTodayConsumptionData}
                 setAdded={setAdded}
                 userConsumptionData={userConsumptionData}
-                />
+            />
             <CalorieCount
                 userId={user.id}
                 formattedDate={formattedDate}
